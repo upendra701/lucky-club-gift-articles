@@ -1,0 +1,227 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+}
+
+enum EnquiryStatus {
+  CUSTOMIZATION_PENDING
+  CUSTOMIZATION_CONFIRMED
+  CONVERTED
+  CLOSED
+  CANCELLED
+}
+
+enum OrderStatus {
+  DRAFT
+  CUSTOMIZATION_PENDING
+  CUSTOMIZATION_CONFIRMED
+  PAYMENT_PENDING
+  PAYMENT_SUCCESS
+  PAYMENT_VERIFICATION_PENDING
+  ORDER_CONFIRMED
+  PROCESSING
+  READY_TO_SHIP
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  PAYMENT_FAILED
+  REFUND_PENDING
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUND_PENDING
+  REFUNDED
+}
+
+enum ShippingStatus {
+  PENDING
+  READY_TO_SHIP
+  SHIPPED
+  IN_TRANSIT
+  DELIVERED
+  RETURNED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      UserRole @default(ADMIN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  image       String?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+
+  @@index([active])
+}
+
+model Product {
+  id                        String         @id @default(cuid())
+  name                      String
+  slug                      String         @unique
+  description               String?
+  price                     Decimal        @db.Decimal(10, 2)
+  comparePrice              Decimal?       @db.Decimal(10, 2)
+  categoryId                String
+  customizationEnabled      Boolean        @default(false)
+  customizationInstructions String?
+  available                 Boolean        @default(true)
+  featured                  Boolean        @default(false)
+  createdAt                 DateTime       @default(now())
+  updatedAt                 DateTime       @updatedAt
+  category                  Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  images                    ProductImage[]
+  enquiries                 Enquiry[]
+  orderItems                OrderItem[]
+
+  @@index([categoryId])
+  @@index([available, featured])
+}
+
+model ProductImage {
+  id            String   @id @default(cuid())
+  productId     String
+  url           String
+  storageBucket String   @default("product-images")
+  storagePath   String
+  alt           String?
+  sortOrder     Int      @default(0)
+  isPrimary     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([storageBucket, storagePath])
+  @@index([productId, sortOrder])
+  @@index([productId, isPrimary])
+}
+
+model Enquiry {
+  id            String        @id @default(cuid())
+  referenceCode String        @unique
+  productId     String
+  customerName  String
+  customerPhone String
+  notes         String?
+  status        EnquiryStatus @default(CUSTOMIZATION_PENDING)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  product       Product       @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  orders        Order[]
+
+  @@index([productId])
+  @@index([customerPhone])
+  @@index([status])
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  orderNumber    String      @unique
+  enquiryId      String?
+  customerName   String
+  customerPhone  String
+  addressLine1   String
+  addressLine2   String?
+  city           String
+  state          String
+  postalCode     String
+  country        String      @default("India")
+  subtotal       Decimal     @db.Decimal(10, 2)
+  shippingAmount Decimal     @db.Decimal(10, 2)
+  totalAmount    Decimal     @db.Decimal(10, 2)
+  status         OrderStatus @default(DRAFT)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  enquiry        Enquiry?    @relation(fields: [enquiryId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  items          OrderItem[]
+  payments       Payment[]
+  receipt        Receipt?
+  shipping       Shipping?
+
+  @@index([enquiryId])
+  @@index([customerPhone])
+  @@index([status])
+}
+
+model OrderItem {
+  id                  String   @id @default(cuid())
+  orderId             String
+  productId           String
+  productNameSnapshot String
+  unitPrice           Decimal  @db.Decimal(10, 2)
+  quantity            Int
+  customizationNotes  String?
+  createdAt           DateTime @default(now())
+  order               Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product             Product  @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Payment {
+  id               String        @id @default(cuid())
+  orderId          String
+  gateway          String
+  gatewayOrderId   String?
+  gatewayPaymentId String?
+  gatewaySignature String?
+  amount           Decimal       @db.Decimal(10, 2)
+  currency         String        @default("INR")
+  status           PaymentStatus @default(PENDING)
+  paidAt           DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  order            Order         @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([orderId])
+  @@index([status])
+  @@index([gatewayOrderId])
+  @@index([gatewayPaymentId])
+}
+
+model Receipt {
+  id            String   @id @default(cuid())
+  orderId       String   @unique
+  receiptNumber String   @unique
+  receiptUrl    String?
+  createdAt     DateTime @default(now())
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Shipping {
+  id             String         @id @default(cuid())
+  orderId        String         @unique
+  courier        String?
+  trackingNumber String?
+  status         ShippingStatus @default(PENDING)
+  shippedAt      DateTime?
+  deliveredAt    DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([status])
+  @@index([trackingNumber])
+}
