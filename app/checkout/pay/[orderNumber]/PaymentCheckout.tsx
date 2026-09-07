@@ -2,7 +2,7 @@
 
 import Script from "next/script";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 type RazorpayResult = {
   razorpay_order_id: string;
@@ -24,10 +24,43 @@ export function PaymentCheckout({ orderNumber }: { orderNumber: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const recoveryTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  function stopRecovery() {
+    if (recoveryTimer.current) {
+      clearInterval(recoveryTimer.current);
+      recoveryTimer.current = null;
+    }
+  }
+
+  function recoverPayment() {
+    stopRecovery();
+    let attempts = 0;
+    recoveryTimer.current = setInterval(async () => {
+      attempts += 1;
+      try {
+        const response = await fetch(`/api/payments/status?orderNumber=${encodeURIComponent(orderNumber)}`, { cache: "no-store" });
+        const data = await response.json();
+        if (response.ok && data.paid) {
+          stopRecovery();
+          router.push(`/checkout/success/${orderNumber}`);
+          return;
+        }
+      } catch {
+        // Keep retrying briefly; the webhook may arrive after the checkout closes.
+      }
+      if (attempts >= 10) {
+        stopRecovery();
+        setLoading(false);
+        setError("We are still waiting for payment confirmation. If your bank account was charged, please do not pay again—contact Lucky Club with your payment reference.");
+      }
+    }, 1500);
+  }
 
   async function startPayment() {
     setLoading(true);
     setError("");
+    stopRecovery();
     try {
       const response = await fetch("/api/payments/create-order", {
         method: "POST",
@@ -59,27 +92,23 @@ export function PaymentCheckout({ orderNumber }: { orderNumber: string }) {
             });
             const verified = await verification.json();
             if (!verification.ok) {
-              setError(verified.error || "Payment verification failed.");
-              setLoading(false);
+              recoverPayment();
+              setError(verified.error || "Payment confirmation is taking a little longer. Checking again automatically...");
               return;
             }
+            stopRecovery();
+            setLoading(false);
             router.push(`/checkout/success/${orderNumber}`);
           } catch {
-            setError("We could not confirm your payment. Please contact Lucky Club with your payment reference.");
-            setLoading(false);
+            recoverPayment();
+            setError("Payment was received. We are checking for confirmation automatically...");
           }
         },
         modal: {
           ondismiss: () => {
-            void fetch("/api/payments/failed", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ orderNumber }),
-            });
-            setLoading(false);
+            recoverPayment();
           },
         },
-        callback_url: undefined,
         theme: { color: "#c99b4c" },
       });
 
@@ -94,7 +123,7 @@ export function PaymentCheckout({ orderNumber }: { orderNumber: string }) {
     <>
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
       <button className="gold-button checkout-submit" type="button" onClick={startPayment} disabled={loading}>
-        {loading ? "Opening secure payment..." : "Pay securely with Razorpay"}
+        {loading ? "Confirming payment..." : "Pay securely with Razorpay"}
       </button>
       {error && <p className="checkout-error" role="alert">{error}</p>}
     </>
