@@ -11,6 +11,8 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env.DATABASE_URL ?? "",
+    // Prisma 7 uses this URL for CLI commands such as `prisma migrate deploy`.
+    // Keep migrations on the Supabase Session Pooler/direct-compatible connection.
+    url: process.env.DIRECT_DATABASE_URL ?? process.env.DATABASE_URL ?? "",
   },
 });
