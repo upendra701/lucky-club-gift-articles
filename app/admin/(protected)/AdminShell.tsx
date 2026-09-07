@@ -7,6 +7,7 @@ import { signOut } from "../actions";
 
 const navigation = [
   { label: "Dashboard", href: "/admin", icon: "⌂" },
+  { label: "Orders", href: "/admin/orders", icon: "◫" },
   { label: "Products", href: "/admin/products", icon: "□" },
   { label: "Categories", href: "/admin/categories", icon: "◇" },
 ];
