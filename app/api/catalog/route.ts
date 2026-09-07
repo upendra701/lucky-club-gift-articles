@@ -15,7 +15,20 @@ export async function GET(request: Request) {
 
     return NextResponse.json(products);
   } catch (error) {
-    console.error("Catalog API failed:", error);
+    const prismaError = error as {
+      name?: string;
+      code?: string;
+      message?: string;
+      meta?: unknown;
+    };
+
+    console.error("Catalog API failed", {
+      name: prismaError?.name,
+      code: prismaError?.code,
+      message: prismaError?.message,
+      meta: prismaError?.meta,
+    });
+
     return NextResponse.json(
       { error: "Unable to load the gift collection." },
       { status: 500 },
