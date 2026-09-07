@@ -26,6 +26,7 @@ export async function markRazorpayPaymentSuccess({
       amount: true,
       currency: true,
       status: true,
+      gatewayPaymentId: true,
       order: {
         select: {
           id: true,
