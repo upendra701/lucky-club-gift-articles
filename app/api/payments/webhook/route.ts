@@ -65,7 +65,7 @@ export async function POST(request: Request) {
           await markRazorpayPaymentSuccess({
             gatewayOrderId: capturedPayment.order_id,
             gatewayPaymentId: capturedPayment.id,
-            amountInPaise: capturedPayment.amount,
+            amountInPaise: Number(capturedPayment.amount),
             currency: capturedPayment.currency,
           });
         }
