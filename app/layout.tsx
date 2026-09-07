@@ -38,7 +38,17 @@ export const metadata: Metadata = {
   creator: "Lucky Club Gift Articles",
   publisher: "Lucky Club Gift Articles",
   alternates: { canonical: "/" },
-  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   openGraph: {
     type: "website",
     locale: "en_IN",
@@ -57,10 +67,37 @@ export const metadata: Metadata = {
   icons: { icon: "/favicon.ico" },
 };
 
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Lucky Club Gift Articles",
+  url: SITE_URL,
+  logo: `${SITE_URL}/lcc.jpg.jpeg`,
+  sameAs: ["https://www.instagram.com/luckyclubgiftarticles"],
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: "+91-7032785547",
+    contactType: "customer service",
+    availableLanguage: ["English", "Telugu"],
+  },
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Lucky Club Gift Articles",
+  url: SITE_URL,
+  description: "Personalized gifts for birthdays, anniversaries, couples, family and special occasions.",
+};
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema).replace(/</g, "\\u003c") }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema).replace(/</g, "\\u003c") }} />
+      </body>
     </html>
   );
 }
