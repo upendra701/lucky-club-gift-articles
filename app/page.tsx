@@ -22,11 +22,11 @@ const benefits = [
   ["₹", "Affordable", "Special gifts without an unreasonable price."],
   ["↗", "Easy Ordering", "Customize directly through WhatsApp."],
 ];
-const testimonials = [
-  ["A", "Customer name", "The placeholder layout is ready for a real customer story."],
-  ["R", "Happy customer", "Replace this sample review with a verified Lucky Club experience."],
-  ["S", "Customer name", "A thoughtful gift idea can become a memory worth keeping."],
-  ["M", "Happy customer", "Real testimonials will be added here as the store grows."],
+const communityHighlights = [
+  ["01", "Made Personal", "Choose a gift and make it yours with names, photos, messages and custom details."],
+  ["02", "Direct Support", "Talk directly with Lucky Club on WhatsApp and discuss your customization before ordering."],
+  ["03", "Carefully Prepared", "Your customization is reviewed and confirmed before you complete your payment."],
+  ["04", "Meaningful Moments", "We focus on gifts made for birthdays, anniversaries, couples, family and special occasions."],
 ];
 
 function Arrow() { return <span aria-hidden="true">&#8599;</span>; }
@@ -63,7 +63,7 @@ export default function Home() {
 
     <section className="benefits"><div className="benefits-inner">{benefits.map(([icon, title, text]) => <div className="benefit" key={title}><span className="benefit-icon">{icon}</span><div><h3>{title}</h3><p>{text}</p></div></div>)}</div></section>
 
-    <section className="reviews" id="about"><div className="heading-center"><p className="eyebrow">A little love from our community</p><h2>What Our Customers Say</h2><p>Real moments. Real smiles.</p></div><div className="review-grid">{testimonials.map(([initial, name, text]) => <article className="review-card" key={name + initial}><div className="review-top"><span className="avatar">{initial}</span><div><strong>{name}</strong><span className="stars">★★★★★</span></div></div><p>&ldquo;{text}&rdquo;</p><small>Placeholder testimonial</small></article>)}</div></section>
+    <section className="reviews" id="about"><div className="heading-center"><p className="eyebrow">Why choose Lucky Club</p><h2>Made for <em>Meaningful</em> Moments</h2><p>Personal service from customization to delivery.</p></div><div className="review-grid">{communityHighlights.map(([number, title, text]) => <article className="review-card" key={number}><div className="review-top"><span className="avatar">{number}</span><div><strong>{title}</strong><span className="stars" aria-label="Lucky Club service highlight">✦</span></div></div><p>{text}</p><small>Lucky Club experience</small></article>)}</div></section>
 
     <section className="instagram-section"><div className="section-heading"><div><p className="eyebrow">Follow along</p><h2>See More From <em>Lucky Club</em></h2><p>Follow us for new designs, gift ideas and special moments.</p></div><a className="outline-button dark-outline" href={instagram} target="_blank" rel="noreferrer">@luckyclubgiftarticles <Arrow /></a></div><div className="instagram-grid"><div className="insta-art insta-one" /><div className="insta-art insta-two" /><div className="insta-art insta-three" /><div className="insta-art insta-four" /><div className="insta-art insta-five" /></div></section>
 
