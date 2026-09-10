@@ -31,7 +31,7 @@ export async function createOrder(_previousState: CheckoutState = initialState, 
 
   let orderNumber: string;
   try {
-    const product = await prisma.product.findUnique({ where: { slug: productSlug }, select: { id: true, name: true, price: true, available: true } });
+    const product = await prisma.product.findUnique({ where: { slug: productSlug }, select: { id: true, name: true, price: true, shippingCharge: true, available: true } });
     if (!product || !product.available) return { error: "This gift is no longer available." };
 
     let enquiryId: string | undefined;
@@ -42,7 +42,7 @@ export async function createOrder(_previousState: CheckoutState = initialState, 
     }
 
     const subtotal = product.price.mul(quantity);
-    const shippingAmount = new Prisma.Decimal("0.00");
+    const shippingAmount = product.shippingCharge;
     const totalAmount = subtotal.add(shippingAmount);
     const order = await prisma.order.create({
       data: {
