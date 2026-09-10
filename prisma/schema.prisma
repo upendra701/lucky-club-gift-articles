@@ -83,6 +83,7 @@ model Product {
   description               String?
   price                     Decimal        @db.Decimal(10, 2)
   comparePrice              Decimal?       @db.Decimal(10, 2)
+  shippingCharge            Decimal        @default(0) @db.Decimal(10, 2)
   categoryId                String
   customizationEnabled      Boolean        @default(false)
   customizationInstructions String?
@@ -181,9 +182,9 @@ model OrderItem {
 }
 
 model Payment {
-  id               String        @id @default(cuid())
+  id               String        @id
   orderId          String
-  gateway          String
+  gateway           String
   gatewayOrderId   String?
   gatewayPaymentId String?
   gatewaySignature String?
@@ -193,7 +194,7 @@ model Payment {
   paidAt           DateTime?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
-  order            Order         @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  order            Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
   @@index([status])
@@ -207,7 +208,7 @@ model Receipt {
   receiptNumber String   @unique
   receiptUrl    String?
   createdAt     DateTime @default(now())
-  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 model Shipping {
@@ -218,9 +219,10 @@ model Shipping {
   status         ShippingStatus @default(PENDING)
   shippedAt      DateTime?
   deliveredAt    DateTime?
+  returnedAt     DateTime?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
-  order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([trackingNumber])
