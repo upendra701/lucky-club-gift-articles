@@ -173,8 +173,8 @@ model OrderItem {
   unitPrice           Decimal  @db.Decimal(10, 2)
   quantity            Int
   customizationNotes  String?
-  createdAt           DateTime @default(now())
-  order               Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt            DateTime @default(now())
+  order               Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product             Product  @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@index([orderId])
@@ -182,9 +182,9 @@ model OrderItem {
 }
 
 model Payment {
-  id               String        @id
+  id               String        @id @default(cuid())
   orderId          String
-  gateway           String
+  gateway          String
   gatewayOrderId   String?
   gatewayPaymentId String?
   gatewaySignature String?
@@ -219,7 +219,6 @@ model Shipping {
   status         ShippingStatus @default(PENDING)
   shippedAt      DateTime?
   deliveredAt    DateTime?
-  returnedAt     DateTime?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
