@@ -8,20 +8,10 @@ type Offer = { id: string; title: string; subtitle: string | null; description: 
 export default function OfferSlider() {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    fetch("/api/offers").then((r) => r.ok ? r.json() : []).then(setOffers).catch(() => setOffers([]));
-  }, []);
-
-  useEffect(() => {
-    if (offers.length < 2) return;
-    const timer = window.setInterval(() => setIndex((current) => (current + 1) % offers.length), 5000);
-    return () => window.clearInterval(timer);
-  }, [offers.length]);
-
+  useEffect(() => { fetch("/api/offers").then((r) => r.ok ? r.json() : []).then(setOffers).catch(() => setOffers([])); }, []);
+  useEffect(() => { if (offers.length < 2) return; const timer = window.setInterval(() => setIndex((current) => (current + 1) % offers.length), 5000); return () => window.clearInterval(timer); }, [offers.length]);
   if (!offers.length) return null;
-  const offer = offers[index];
-  const href = offer.buttonHref || "/products";
-  const isExternal = href.startsWith("http");
-  return <section className="offer-slider" aria-label="Current offers"><div className="offer-slider-track" style={{ transform: `translateX(-${index * 100}%)` }}>{offers.map((item) => <div className="offer-slide" key={item.id}><div className="offer-slide-image" style={{ backgroundImage: `url("${item.image}")` }} /><div className="offer-slide-content"><p className="eyebrow">Lucky Club Special Offer</p><h2>{item.title}</h2>{item.subtitle && <p className="offer-subtitle">{item.subtitle}</p>}{item.description && <p className="offer-description">{item.description}</p>}{item.buttonLabel && (isExternal ? <a className="gold-button" href={href} target="_blank" rel="noreferrer">{item.buttonLabel} <span aria-hidden="true">↗</span></a> : <Link className="gold-button" href={href}>{item.buttonLabel} <span aria-hidden="true">↗</span></Link>)}</div></div>)}</div>{offers.length > 1 && <div className="offer-dots" aria-label="Offer slides">{offers.map((item, dotIndex) => <button key={item.id} type="button" aria-label={`Show offer ${dotIndex + 1}`} aria-current={dotIndex === index} onClick={() => setIndex(dotIndex)} />)}</div>}</section>;
+  return <><section className="offer-slider" aria-label="Current offers"><div className="offer-slider-track" style={{ transform: `translateX(-${index * 100}%)` }}>{offers.map((item) => { const href = item.buttonHref || "/products"; const external = href.startsWith("http"); return <div className="offer-slide" key={item.id}><div className="offer-slide-image" style={{ backgroundImage: `url("${item.image}")` }} /><div className="offer-slide-overlay" /><div className="offer-slide-content"><p className="offer-eyebrow">LUCKY CLUB · SPECIAL OFFER</p><h2>{item.title}</h2>{item.subtitle && <p className="offer-subtitle">{item.subtitle}</p>}{item.description && <p className="offer-description">{item.description}</p>}{item.buttonLabel && (external ? <a className="gold-button" href={href} target="_blank" rel="noreferrer">{item.buttonLabel} <span>↗</span></a> : <Link className="gold-button" href={href}>{item.buttonLabel} <span>↗</span></Link>)}</div></div>; })}</div>{offers.length > 1 && <div className="offer-dots">{offers.map((item, dotIndex) => <button key={item.id} type="button" aria-label={`Show offer ${dotIndex + 1}`} aria-current={dotIndex === index} onClick={() => setIndex(dotIndex)} />)}</div>}</section><style jsx global>{`
+.offer-slider{position:relative;overflow:hidden;background:#241811;color:#fff}.offer-slider-track{display:flex;width:100%;transition:transform .75s cubic-bezier(.22,1,.36,1)}.offer-slide{position:relative;min-width:100%;min-height:210px;display:flex;align-items:center}.offer-slide-image{position:absolute;inset:0;background-size:cover;background-position:center}.offer-slide-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(25,15,10,.94),rgba(25,15,10,.62) 43%,rgba(25,15,10,.18))}.offer-slide-content{position:relative;z-index:2;width:min(700px,90%);padding:34px clamp(24px,8vw,120px)}.offer-eyebrow{margin:0 0 10px;font-size:10px;letter-spacing:.24em;color:#d7a55c;font-weight:700}.offer-slide-content h2{margin:0;font-family:Georgia,serif;font-size:clamp(30px,4vw,52px);line-height:1.03}.offer-subtitle{margin:8px 0 0;font-size:17px}.offer-description{max-width:570px;margin:7px 0 18px;font-size:13px;opacity:.82}.offer-slide-content .gold-button{display:inline-flex;margin-top:10px}.offer-dots{position:absolute;right:28px;bottom:20px;z-index:4;display:flex;gap:8px}.offer-dots button{width:8px;height:8px;padding:0;border:1px solid rgba(255,255,255,.8);border-radius:50%;background:transparent;cursor:pointer}.offer-dots button[aria-current=true]{background:#d7a55c;border-color:#d7a55c;transform:scale(1.25)}@media(max-width:640px){.offer-slide{min-height:270px}.offer-slide-content{padding:32px 22px 48px}.offer-slide-overlay{background:linear-gradient(90deg,rgba(25,15,10,.92),rgba(25,15,10,.48))}.offer-dots{right:20px;bottom:17px}}
+`}</style></>;
 }
