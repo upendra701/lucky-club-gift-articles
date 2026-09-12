@@ -14,24 +14,14 @@ export function CategoryForm({ category }: { category?: Category }) {
           setError("");
           await saveCategory(formData);
         } catch (actionError) {
-          if (
-            actionError &&
-            typeof actionError === "object" &&
-            "digest" in actionError &&
-            typeof actionError.digest === "string" &&
-            actionError.digest.startsWith("NEXT_REDIRECT")
-          ) {
+          if (actionError && typeof actionError === "object" && "digest" in actionError && typeof actionError.digest === "string" && actionError.digest.startsWith("NEXT_REDIRECT")) {
             throw actionError;
           }
-
-          setError(
-            actionError instanceof Error
-              ? actionError.message
-              : "Could not save category.",
-          );
+          setError(actionError instanceof Error ? actionError.message : "Could not save category.");
         }
       }}
       className="admin-form-panel admin-category-form"
+      encType="multipart/form-data"
     >
       {category && <input type="hidden" name="id" value={category.id} />}
 
@@ -53,9 +43,22 @@ export function CategoryForm({ category }: { category?: Category }) {
       </label>
 
       <label>
+        Reference image
+        <input name="imageFile" type="file" accept="image/*" />
+        <small>Upload a category image for the homepage card. Maximum 5 MB.</small>
+      </label>
+
+      {category?.image && (
+        <div className="admin-image-preview">
+          <img src={category.image} alt={`${category.name} reference`} />
+          <small>Current reference image</small>
+        </div>
+      )}
+
+      <label>
         Category image URL
         <input name="image" type="url" defaultValue={category?.image ?? ""} placeholder="https://..." />
-        <small>Optional. This image is shown inside the homepage category card.</small>
+        <small>Optional fallback. A newly uploaded reference image takes priority.</small>
       </label>
 
       <div className="admin-form-grid">
