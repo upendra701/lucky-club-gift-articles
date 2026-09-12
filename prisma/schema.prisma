@@ -78,6 +78,23 @@ model Category {
   @@index([active, sortOrder])
 }
 
+model OfferPoster {
+  id          String   @id @default(cuid())
+  title       String
+  subtitle    String?
+  description String?
+  image       String
+  buttonLabel String?
+  buttonHref  String?
+  sortOrder   Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([active])
+  @@index([active, sortOrder])
+}
+
 model Product {
   id                        String         @id @default(cuid())
   name                      String
@@ -221,9 +238,9 @@ model Shipping {
   status         ShippingStatus @default(PENDING)
   shippedAt      DateTime?
   deliveredAt    DateTime?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  order          Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([trackingNumber])
