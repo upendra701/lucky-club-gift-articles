@@ -68,12 +68,14 @@ model Category {
   slug        String    @unique
   description String?
   image       String?
+  sortOrder   Int       @default(0)
   active      Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   products    Product[]
 
   @@index([active])
+  @@index([active, sortOrder])
 }
 
 model Product {
