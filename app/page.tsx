@@ -6,8 +6,7 @@ import { useEffect, useState } from "react";
 
 const whatsapp = "https://wa.me/917032785547";
 const instagram = "https://www.instagram.com/luckyclubgiftarticles";
-
-const categories = ["Love & Couples", "Birthday", "Anniversary", "Family", "Baby & Kids", "Personalized Gifts", "Special Occasions"];
+type Category = { id: string; name: string; slug: string; image: string | null; description: string | null; sortOrder: number };
 type FeaturedProduct = { id: string; slug: string; name: string; price: string; comparePrice: string | null; category: { name: string }; images: { url: string; alt: string | null }[] };
 const steps = [
   ["01", "Choose Your Gift", "Browse our collection and select something special."],
@@ -34,14 +33,21 @@ function WhatsAppIcon() { return <svg aria-hidden="true" viewBox="0 0 24 24"><pa
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<FeaturedProduct[]>([]);
   const closeMenu = () => setMenuOpen(false);
+
   useEffect(() => {
+    fetch("/api/categories")
+      .then((response) => response.ok ? response.json() : [])
+      .then(setCategories)
+      .catch(() => setCategories([]));
     fetch("/api/catalog?featured=true")
       .then((response) => response.ok ? response.json() : [])
       .then(setProducts)
       .catch(() => setProducts([]));
   }, []);
+
   return <main>
     <header className="store-header" id="top">
       <nav className="store-nav" aria-label="Main navigation">
@@ -55,7 +61,8 @@ export default function Home() {
     </header>
 
     <section className="store-hero"><div className="hero-copy"><p className="script-line">Make Every Memory</p><h1>A Special <em>Gift.</em></h1><p>Personalized gifts made with love for the people and moments that matter most.</p><div className="hero-actions"><a className="gold-button" href="#products">Explore Gifts <Arrow /></a><a className="outline-button" href={whatsapp} target="_blank" rel="noreferrer"><WhatsAppIcon /> Chat on WhatsApp</a></div><div className="hero-trust"><span>★★★★★</span> Thoughtful gifts for every occasion</div></div><div className="hero-products" aria-label="A premium composition of personalized gift products"><span className="hero-badge">Gifts made<br /><strong>with love</strong></span><div className="hero-card hero-card-main"><span className="card-ribbon">FOR YOU</span><span className="card-photo">Your<br />memory</span></div><div className="hero-card hero-card-small"><span className="card-photo">With<br />love</span></div><div className="hero-ring" /></div></section>
-    <section className="categories" id="gifts"><div className="heading-center"><span className="gold-rule" /><p className="eyebrow">A little something for everyone</p><h2>Find the Perfect Gift</h2><span className="gold-rule" /></div><div className="category-viewport"><div className="category-scroll"><div className="category-track">{categories.map((category, index) => <a className={`category-card category-${index + 1}`} href="#products" key={category}><div className="category-art"><span>{String(index + 1).padStart(2, "0")}</span></div><strong>{category}</strong><Arrow /></a>)}</div></div></div></section>
+
+    <section className="categories" id="gifts"><div className="heading-center"><span className="gold-rule" /><p className="eyebrow">A little something for everyone</p><h2>Find the Perfect Gift</h2><span className="gold-rule" /></div><div className="category-viewport"><div className="category-scroll"><div className="category-track">{categories.map((category, index) => <a className={`category-card category-${(index % 7) + 1}`} href="#products" key={category.id}><div className="category-art" style={category.image ? { backgroundImage: `url("${category.image}")` } : undefined}><span>{String(index + 1).padStart(2, "0")}</span></div><strong>{category.name}</strong><Arrow /></a>)}</div></div></div></section>
 
     <section className="products-section" id="products"><div className="section-heading"><div><p className="eyebrow">Made to be remembered</p><h2>Gifts Everyone <em>Loves</em></h2><p>Handpicked favourites just for you.</p></div><Link className="view-all" href="/products">View all gifts <Arrow /></Link></div><div className="product-grid">{products.length ? products.map((product, index) => <article className="product-card" key={product.id}><Link href={`/products/${product.slug}`} className="product-art product-live-image">{product.images[0] ? <img src={product.images[0].url} alt={product.images[0].alt || product.name} /> : <span className="product-placeholder">Lucky Club</span>}<span className="product-number">0{index + 1}</span></Link><div className="product-info"><p className="product-category">{product.category.name}</p><h3>{product.name}</h3><p>₹{product.price}{product.comparePrice && <del> ₹{product.comparePrice}</del>}</p><a href={`${whatsapp}?text=${encodeURIComponent(`Hi, I'm interested in customizing ${product.name}.`)}`} target="_blank" rel="noreferrer">Customize on WhatsApp <Arrow /></a></div></article>) : <div className="catalog-fallback"><h3>Thoughtful gifts are arriving soon.</h3><p>Chat with us on WhatsApp to create something personal.</p><a className="gold-button" href={whatsapp} target="_blank" rel="noreferrer"><WhatsAppIcon /> Chat on WhatsApp</a></div>}</div></section>
 
