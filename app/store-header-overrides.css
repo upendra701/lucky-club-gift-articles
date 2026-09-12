@@ -80,9 +80,73 @@
   color: #d7c3a0 !important;
 }
 
+/* Premium handmade-gift animation for the open space in the category section. */
+.categories {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.categories::before {
+  content: "LUCKY CLUB  •  GIFT ARTICLES  •  MADE WITH CARE";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 48%;
+  transform: translate(-50%, -50%) rotate(-7deg);
+  white-space: nowrap;
+  color: rgba(177, 132, 55, .055);
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(44px, 7vw, 96px);
+  letter-spacing: .08em;
+  pointer-events: none;
+  animation: luckyWatermark 10s ease-in-out infinite;
+}
+
+.categories::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  right: 9%;
+  top: 50%;
+  width: 138px;
+  height: 108px;
+  border: 1px solid rgba(177, 132, 55, .22);
+  background:
+    linear-gradient(90deg, transparent 46%, rgba(201,155,76,.24) 46%, rgba(201,155,76,.24) 54%, transparent 54%),
+    linear-gradient(0deg, rgba(201,155,76,.10), rgba(255,255,255,.02));
+  box-shadow: 0 18px 45px rgba(55, 38, 23, .08);
+  transform: translateY(-50%) rotate(4deg);
+  pointer-events: none;
+  animation: luckyGiftFloat 5.5s ease-in-out infinite;
+}
+
+.categories .heading-center,
+.categories .category-viewport {
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes luckyGiftFloat {
+  0%, 100% { transform: translateY(-50%) rotate(4deg); }
+  50% { transform: translateY(calc(-50% - 14px)) rotate(-2deg); }
+}
+
+@keyframes luckyWatermark {
+  0%, 100% { opacity: .55; transform: translate(-50%, -50%) rotate(-7deg) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -54%) rotate(-4deg) scale(1.025); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .categories::before,
+  .categories::after { animation: none; }
+}
+
 @media (max-width: 800px) {
   .store-nav { min-height: 86px; }
   .store-nav .brand { width: 145px; height: 72px; }
   .store-nav .brand-crop { height: 50px !important; width: 145px !important; flex-basis: 50px; }
   .store-nav .brand > small { font-size: 6px !important; letter-spacing: .3em !important; margin-top: 3px !important; }
+  .categories::before { font-size: 42px; }
+  .categories::after { right: 4%; width: 92px; height: 72px; opacity: .7; }
 }
