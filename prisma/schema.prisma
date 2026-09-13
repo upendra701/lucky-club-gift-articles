@@ -95,6 +95,20 @@ model OfferPoster {
   @@index([active, sortOrder])
 }
 
+model InstagramPost {
+  id         String   @id @default(cuid())
+  title      String?
+  image      String
+  postUrl    String
+  sortOrder  Int      @default(0)
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([active])
+  @@index([active, sortOrder])
+}
+
 model Product {
   id                        String         @id @default(cuid())
   name                      String
@@ -238,9 +252,9 @@ model Shipping {
   status         ShippingStatus @default(PENDING)
   shippedAt      DateTime?
   deliveredAt    DateTime?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  order          Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  order          Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([trackingNumber])
