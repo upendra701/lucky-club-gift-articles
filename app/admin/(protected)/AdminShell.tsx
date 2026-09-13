@@ -11,6 +11,7 @@ const navigation = [
   { label: "Products", href: "/admin/products", icon: "□" },
   { label: "Categories", href: "/admin/categories", icon: "◇" },
   { label: "Offers", href: "/admin/offers", icon: "✦" },
+  { label: "Instagram", href: "/admin/instagram", icon: "◎" },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
